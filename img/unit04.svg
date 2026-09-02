@@ -1,0 +1,1110 @@
+<?xml version='1.0' encoding='us-ascii'?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" version="1.1" width="600" height="600" viewBox="-1000 -1000 2000 2000" onload="main.inits(event);">
+<title>the three body problem.  'Sick on chronic mathematics / I just wanted to feel music' - neko case winnie</title>
+<style>
+.space { fill:#000022; stroke:none; stroke-width:0; }
+circle { stroke:none; stroke-width:0; }
+
+.on { visibility:visible; }
+.off { visibility:hidden; }
+
+.big { stroke-width:1; fill:none; fill-opacity:0; }
+.lit { stroke-width:.0002; fill:none; fill-opacity:0; }
+.med { stroke-width:.0002; fill:none; fill-opacity:0; }
+
+.p0 { stroke:#ff0000; stroke-opacity:.6; }
+.p1 { stroke:#00ff00; stroke-opacity:.5; }
+.p2 { stroke:#0000ff; stroke-opacity:.4; }
+.p3 { stroke:#ff00ff; stroke-opacity:.3; }
+
+.bc { fill:#ffff00; fill-opacity:1; }
+.bd { fill:#00ffff; fill-opacity:1; }
+.be { fill:#ff00ff; fill-opacity:1; }
+
+.bf { fill:#ff0000; fill-opacity:1; }
+.bg { fill:#00ff00; fill-opacity:1; }
+
+.c0 { fill:#ff0000; fill-opacity:.6; }
+.c1 { fill:#00ff00; fill-opacity:.5; }
+.c2 { fill:#0000ff; fill-opacity:.4; }
+.c3 { fill:#ff00ff; fill-opacity:.3; }
+
+.xx { stroke:#ffffff; stroke-opacity:.5; }
+
+.x0 { filter: url(#x0); }
+.x1 { filter: url(#x1); }
+.x2 { filter: url(#x2); }
+.x3 { filter: url(#x3); }
+.x4 { filter: url(#x4); }
+.x5 { filter: url(#x5); }
+.x6 { filter: url(#x6); }
+.x7 { filter: url(#x7); }
+.x8 { filter: url(#x8); }
+.x9 { filter: url(#x9); }
+.x10 { filter: url(#x10); }
+.x11 { filter: url(#x11); }
+.x12 { filter: url(#x12); }
+.x13 { filter: url(#x13); }
+.x14 { filter: url(#x14); }
+.x15 { filter: url(#x15); }
+.x16 { filter: url(#x16); }
+.x17 { filter: url(#x17); }
+.x18 { filter: url(#x18); }
+.x19 { filter: url(#x19); }
+.x20 { filter: url(#x20); }
+.x21 { filter: url(#x21); }
+.x22 { filter: url(#x22); }
+.x23 { filter: url(#x23); }
+.x24 { filter: url(#x24); }
+.x25 { filter: url(#x25); }
+.x26 { filter: url(#x26); }
+
+</style>
+<!--
+Sick on chronic mathematics / I just wanted to feel music - neko case winnie
+
+lost in math - en.wikipedia.org/wiki/Sabine_Hossenfelder
+Liu Cixin - en.wikipedia.org/wiki/The_Three-Body_Problem_(novel)
+
+The source code of the three-body problem simulation
+This is the complete source code of the three-body problem simulator. Feel free to use it on any web site.
+
+
+
+Three-body problem simulation.
+
+https://evgenii.com/blog/three-body-problem-simulator/
+
+You can copy/paste this code into an HTML file (a file with a name that ends with .html). Then this file can be opened locally on your computer or you can put it on your web site. Note that the code uses images loaded from https://evgenii.com web site. You will need to host these images if you want to make sure the simulation always works and is not dependent on evgenii.com web site.
+
+License: Public Domain
+
+
+Credits
+=============
+
+1. This work is based on code and lectures by Dr Rosemary Mardling from Monash University.
+
+2. "The Blue Marble" By  NASA/Apollo 17 crew; taken by either Harrison Schmitt or Ron Evans. Sources: http://www.nasa.gov/images/content/115334main_image_feature_329_ys_full.jpg, https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg
+
+3. "The Sun photographed at 304 angstroms" by NASA/SDO (AIA). Sources: http://sdo.gsfc.nasa.gov/assets/img/browse/2010/08/19/20100819_003221_4096_0304.jpg, https://commons.wikimedia.org/wiki/File:The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg
+
+4. **"Jupiter's South Pole"** image: NASA/JPL-Caltech/SwRI/MSSS/Betsy Asher Hall/Gervasio Robles, [source](https://www.nasa.gov/image-feature/jupiters-south-pole).
+
+5. **Figure eight orbit**: Moore, C. 1993, Phys. Rev. Lett., 70, 3675.
+
+6. **Kepler-16 system**: Doyle, L. R., Carter, J. A., Fabrycky, D. C., et al. 2011, Science, 333, 1602.
+
+-->
+<script type="application/ecmascript"><![CDATA[
+
+    // The list of simulations shown to the user.
+    // -------------------------
+    //
+    //    dimensionless: false if masses are given in kilograms, true if masses are close to 1.
+    //    masses: Masses of the bodies in kilograms
+    //    timeScaleFactor:
+    //        The number of seconds advanced by the model in one second of the animation
+    //        Used to speed up things, so user does not wait for one year for the model
+    //        of the Earth go around the Sun
+    //    positions: Positions of the bodies in Polar coordinates, r is in meters
+    //    velocities: Velocities of the bodies in Polar coordinates, r is in m/s
+    //    densities: Optional densities (kg/m^3). This is a way to tweak object's size, since densities are
+    //                used for estimating the radius of an object from its mass.
+    //                If not supplied, an average Sun's density is used.
+    //    paleOrbitalPaths: If true then the orbital path is paler than usual.
+    //
+//  'defs' : [1,1,0,0.55,(Math.PI/2),
+//	    1,1,(2*Math.PI/3),0.55,(2*Math.PI/3)+(Math.PI/2),
+//	    1,1,(4*Math.PI/3),0.55,(4*Math.PI/3)+(Math.PI/2)],
+// ************************************************************************
+// mass,r,th,vr,vth, x3
+var dct={ 
+  'Mp':0.00000001, 'Mn':9, 'pa' : false,
+  'vP' : {x: 0.97000436, y: -0.24308753},
+  'vV' : {x: -0.93240737, y: -0.86473146}
+};
+dct.geta = function(o,n) { return (!o || !n ? null : o.getAttribute(n)); };
+dct.seta = function(o,n,v) { if (o) { if (n) { o.setAttribute(n,""+v); }}};
+dct.setaa = function(o,a) { if (o) { if (a) { 
+      var i,e,f,l; l=a.length; for (i=0;i<l;i=i+2) { e=a[i]; f=a[i+1]; if (e) { 
+	  o.setAttribute(e,(f ? ""+f : "")); 
+	}}
+    }}};
+dct.settv = function(o,v) { if (o) { o.textContent=(v ? v : ""); }};
+dct.bf=function(n) {
+  var d,s,r; d=dct; s=""+(Math.abs(n)<d.Mp ? 0 : n); r=s.substr(0,d.Mn);
+  return (r.charAt(d.Mn-1)=='.' ? r.substr(0,d.Mn-1) : r);
+};
+dct.bfa=function(a) { var r=""; if (a) {
+    var i,j; j=a.length; if (j) {
+      for (i=0;i<j;i++) { r=r+(i ? "," : "")+dct.bf(a[i]); }
+    }
+  } return r; };
+
+// ************************************************************************
+dct.pFC=function(coordinates) {
+  var angle;
+  
+  if (coordinates.x === 0) {
+    angle = 0;
+  } else {
+    angle = Math.atan2(coordinates.y, coordinates.x);
+  }
+  
+  return {
+  r: Math.sqrt(Math.pow(coordinates.x, 2) + Math.pow(coordinates.y, 2)),
+  theta: angle
+  };
+};
+
+
+var allPresets = {
+  "FigureEight": {
+  dimensionless: true,
+  masses: [1, 1, 1],
+  massSlider: {
+    min: 0.1,
+    max: 5,
+    power: 3
+    },
+  timeScaleFactor: 1,
+  timeScaleFactorSlider: {
+    min: 0.00,
+    max: 5000,
+    power: 5
+    },
+  positions: [ // in Polar coordinates, r is in meters
+	      dct.pFC(dct.vP),
+	      dct.pFC({x: -dct.vP.x, y: -dct.vP.y}),
+	      dct.pFC({x: 0, y: 0})
+	       ],
+  velocities: [ // in Polar coordinates, r is in m/s
+	       dct.pFC({x: -dct.vV.x / 2, y: -dct.vV.y/2}),
+	       dct.pFC({x: -dct.vV.x / 2, y: -dct.vV.y/2}),
+	       dct.pFC(dct.vV)
+		]
+  },
+  "SunEarthJupiter": {
+  masses: [1.98855 * Math.pow(10, 30), 5.972 * Math.pow(10, 24), 1.898 * Math.pow(10, 27)],
+  densities: [0.01, 0.01, 0.01],
+  massSlider: {
+    min: 3 * Math.pow(10, 10),
+    max: 3 * Math.pow(10, 31),
+    power: 3
+    },
+  timeScaleFactor: 3600 * 24 * 365,
+  timeScaleFactorSlider: {
+    min: 0,
+    max: 3600 * 24 * 500 * 10000,
+    power: 5
+    },
+  positions: [ // in Polar coordinates, r is in meters
+  {
+  r: 0,
+  theta: 0
+  },
+  {
+  r: 1.496 * Math.pow(10, 11),
+  theta: 0
+  },
+  {
+  r: 7.78 * Math.pow(10, 11),
+  theta: 0
+  }
+	       ],
+  velocities: [ // in Polar coordinates, r is in m/s
+  {
+  r: 0,
+  theta: Math.PI/2
+  },
+  {
+  r: 30 * Math.pow(10, 3),
+  theta: Math.PI/2
+  },
+  {
+  r: 13.1 * Math.pow(10, 3),
+  theta: Math.PI/2
+  }
+		]
+  },
+  "LagrangePoint5": {
+  masses: [1.98855 * Math.pow(10, 30), 5.972 * Math.pow(10, 24), 1.898 * Math.pow(10, 28)],
+  densities: [0.001, 0.0001, 0.0001],
+  paleOrbitalPaths: true,
+  massSlider: {
+    min: 3 * Math.pow(10, 10),
+    max: 3 * Math.pow(10, 31),
+    power: 5
+    },
+  timeScaleFactor: 3600 * 24 * 1000,
+  timeScaleFactorSlider: {
+    min: 0,
+    max: 3600 * 24 * 500 * 10000,
+    power: 5
+    },
+  positions: [ // in Polar coordinates, r is in meters
+  {
+  r: 0,
+  theta: 0
+  },
+  {
+  r: 7.5 * Math.pow(10, 11),
+  theta: -Math.PI/3 - Math.PI/10
+  },
+  {
+  r: 7.78 * Math.pow(10, 11),
+  theta: 0
+  }
+	       ],
+  velocities: [ // in Polar coordinates, r is in m/s
+  {
+  r: 0,
+  theta: Math.PI/2
+  },
+  {
+  r: 13.3 * Math.pow(10, 3),
+  theta: Math.PI/6 - Math.PI/10
+  },
+  {
+  r: 13.1 * Math.pow(10, 3),
+  theta: Math.PI/2
+  }
+		]
+  },
+  "Kepler16": {
+  masses: [0.6897 * 1.98855 * Math.pow(10, 30), 0.20255 * 1.98855 * Math.pow(10, 30), 0.3333 * 1.898 * Math.pow(10, 27)],
+  massSlider: {
+    min: 3 * Math.pow(10, 10),
+    max: 3 * Math.pow(10, 31),
+    power: 5
+    },
+  timeScaleFactor: 3600 * 24 * 41,
+  timeScaleFactorSlider: {
+    min: 0,
+    max: 3600 * 24 * 500 * 100,
+    power: 5
+    },
+  positions: [ // in Polar coordinates, r is in meters
+  {
+  r: (0.20255 * 0.22431 * 1.496 * Math.pow(10, 11)) / (0.6897 + 0.20255 ),
+  theta: 0
+  },
+  {
+  r: (0.6897 * 0.22431 * 1.496 * Math.pow(10, 11)) / (0.6897 + 0.20255 ),
+  theta: Math.PI
+  },
+  {
+  r: 0.7048 * 1.496 * Math.pow(10, 11),
+  theta: 0
+  }
+	       ],
+  velocities: [ // in Polar coordinates, r is in m/s
+  {
+  r: 13 * Math.pow(10, 3),
+  theta: Math.PI/2
+  },
+  {
+  r: 44 * Math.pow(10, 3),
+  theta: 3*Math.PI/2
+  },
+  {
+  r: 33 * Math.pow(10, 3),
+  theta: Math.PI/2
+  }
+		]
+  },
+  "Chaotic": {
+  dimensionless: true,
+  masses: [1, 1, 1],
+  massSlider: {
+    min: 0.1,
+    max: 10,
+    power: 3
+    },
+  timeScaleFactor: 3.9335,
+  timeScaleFactorSlider: {
+    min: 0.00,
+    max: 100,
+    power: 3
+    },
+  positions: [ // in Polar coordinates, r is in meters
+  {
+  r: 1,
+  theta: 0
+  },
+  {
+  r: 1,
+  theta: 2*Math.PI/3
+  },
+  {
+  r: 1,
+  theta: 4*Math.PI/3
+  }
+	       ],
+  velocities: [ // in Polar coordinates, r is in m/s
+  {
+  r: .55,
+  theta: Math.PI/2
+  },
+  {
+  r: .55,
+  theta: 2*Math.PI/3 + Math.PI/2
+  },
+  {
+  r: .55,
+  theta: 4*Math.PI/3 + Math.PI/2
+  }
+		]
+  },
+};
+
+var physics = {
+  'constants' : {
+  'gravitationalConstant': 6.67408 * Math.pow(10, -11),
+  // Average density of the body (kg/m^3). Used for calculating body's radius form its mass
+  'averageDensity': 1410
+  },
+  // Current state of the system
+  'state' : {
+    // State variables used in the differential equations
+    // First two elements are x and y positions, and second two are x and y components of velocity
+    // repeated for three bodies. plus center of mass
+    'c': [0,0],
+    'u': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  },
+  
+  // Initial condition of the model. The conditions are loaded from the currently selected simulation.
+  'initialConditions' : {
+  'bodies': 3 // Number of bodies
+  }
+};
+// Calculate the radius of the body (in meters) based on its mass.
+physics.calculateRadiusFromMass = function(mass, density) {
+  return Math.pow(3/4 * mass / ( Math.PI * density), 1/3);
+};
+  
+// Returns the diameters of three bodies in meters
+physics.calculateDiameters=function() {
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var diameters = [];
+    
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    if (pi.densities !== undefined && pi.densities.length >= pi.bodies-1) {
+      var density = pi.densities[iBody];
+    } else {
+      density = p.constants.averageDensity;
+    }
+      
+    diameters.push(2 * calculateRadiusFromMass(pi.masses[iBody], density));
+  }
+    
+  return diameters;
+};
+  
+physics.calculateCenterOfMassVelocity=function(){
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var centerOfMassVelocity = {x: 0, y: 0};
+  var sumOfMasses = 0;
+    
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    var bodyStart = iBody * 4; // Starting index for current body in the u array
+    centerOfMassVelocity.x += pi.masses[iBody] * p.state.u[bodyStart + 2];
+    centerOfMassVelocity.y += pi.masses[iBody] * p.state.u[bodyStart + 3];
+    sumOfMasses += pi.masses[iBody];
+  }
+    
+  centerOfMassVelocity.x /= sumOfMasses;
+  centerOfMassVelocity.y /= sumOfMasses;
+    
+  return centerOfMassVelocity;
+};
+  
+physics.calculateCenterOfMass=function(){
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var centerOfMass = {x: 0, y: 0};
+  var sumOfMasses = 0;
+    
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    var bodyStart = iBody * 4; // Starting index for current body in the u array
+    centerOfMass.x += pi.masses[iBody] * p.state.u[bodyStart + 0];
+    centerOfMass.y += pi.masses[iBody] * p.state.u[bodyStart + 1];
+    sumOfMasses += pi.masses[iBody];
+  }
+    
+  centerOfMass.x /= sumOfMasses;
+  centerOfMass.y /= sumOfMasses;
+    
+  return centerOfMass;
+};
+  
+physics.resetStateToInitialConditions=function() {
+  var p,pi,w,z; p=physics; pi=p.initialConditions; 
+  var iBody, bodyStart;
+    
+  // Loop through the bodies
+  for (iBody = 0; iBody < pi.bodies; iBody++) {
+    bodyStart = iBody * 4; // Starting index for current body in the u array
+      
+    var position = pi.positions[iBody];
+    p.state.u[bodyStart + 0] = position.r * Math.cos(position.theta); // x
+    p.state.u[bodyStart + 1] = position.r * Math.sin(position.theta); //y
+      
+    var velocity = pi.velocities[iBody];
+    p.state.u[bodyStart + 2] = velocity.r * Math.cos(velocity.theta); // velocity x
+    p.state.u[bodyStart + 3] = velocity.r * Math.sin(velocity.theta); // velocity y
+  }
+    
+  w=p.calculateCenterOfMass(); z=p.calculateCenterOfMassVelocity();
+  p.state.c=[w,z];
+    
+  // Correct the velocities and positions of the bodies
+  // to make the center of mass motionless at the middle of the screen
+  for (iBody = 0; iBody < pi.bodies; iBody++) {
+    bodyStart = iBody * 4; // Starting index for current body in the u array
+    p.state.u[bodyStart + 0] -= w.x;
+    p.state.u[bodyStart + 1] -= w.y;
+    p.state.u[bodyStart + 2] -= z.x;
+    p.state.u[bodyStart + 3] -= z.y;
+  }
+};
+  
+// Calculates the acceleration of the body 'iFromBody'
+// due to gravity from other bodies,
+// using Newton's law of gravitation.
+//   iFromBody: the index of body. 0 is first body, 1 is second body.
+//   coordinate: 0 for x coordinate, 1 for y coordinate
+physics.acceleration=function(iFromBody, coordinate) {
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var result = 0;
+  var iFromBodyStart = iFromBody * 4; // Starting index for the body in the u array
+    
+  // Loop through the bodies
+  for (var iToBody = 0; iToBody < pi.bodies; iToBody++) {
+    if (iFromBody === iToBody) { continue; }
+    var iToBodyStart = iToBody * 4; // Starting index for the body in the u array
+
+    // Distance between the two bodies
+    var distanceX = p.state.u[iToBodyStart + 0] -
+      p.state.u[iFromBodyStart + 0];
+      
+    var distanceY = p.state.u[iToBodyStart + 1] -
+      p.state.u[iFromBodyStart + 1];
+      
+    var distance = Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
+    var gravitationalConstant = 1;
+      
+    if (pi.dimensionless !== true) {
+      gravitationalConstant = p.constants.gravitationalConstant;
+    }
+      
+    result += gravitationalConstant *
+      pi.masses[iToBody] *
+      (p.state.u[iToBodyStart + coordinate] - p.state.u[iFromBodyStart + coordinate]) /
+      (Math.pow(distance, 3));
+  }
+    
+  return result;
+};
+  
+// Calculate the derivatives of the system of ODEs that describe equation of motion of the bodies
+physics.derivative=function() {
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var du = new Array(pi.bodies * 4);
+    
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    // Starting index for current body in the u array
+    var bodyStart = iBody * 4;
+      
+    du[bodyStart + 0] = p.state.u[bodyStart + 0 + 2]; // Velocity x
+    du[bodyStart + 1] = p.state.u[bodyStart + 0 + 3]; // Velocity y
+    du[bodyStart + 2] = p.acceleration(iBody, 0); // Acceleration x
+    du[bodyStart + 3] = p.acceleration(iBody, 1); // Acceleration y
+  }
+    
+  return du;
+}
+  
+// numerical integration
+physics.rungeKutta=function(h, u, derivative) {
+    // h: timestep
+    // u: variables
+    // derivative: function that calculates the derivatives
+
+  var a = [h/2, h/2, h, 0];
+  var b = [h/6, h/3, h/3, h/6];
+  var u0 = [];
+  var ut = [];
+  var dimension = u.length;
+  
+  for (var i = 0; i < dimension; i++) {
+    u0.push(u[i]);
+    ut.push(0);
+  }
+  
+  for (var j = 0; j < 4; j++) {
+    var du = derivative();
+    
+    for (i = 0; i < dimension; i++) {
+      u[i] = u0[i] + a[j]*du[i];
+      ut[i] = ut[i] + b[j]*du[i];
+    }
+  }
+  
+  for (i = 0; i < dimension; i++) {
+    u[i] = u0[i] + ut[i];
+  }
+};
+
+// The main function that is called on every animation frame.
+// It calculates and updates the current positions of the bodies
+physics.updatePosition=function(timestep) {
+  var p,pi,w,z; p=physics; pi=p.initialConditions; 
+  p.rungeKutta(timestep, p.state.u, p.derivative);
+
+  w=p.calculateCenterOfMass(); z=p.calculateCenterOfMassVelocity();
+  p.state.c=[w,z];
+}
+  
+physics.calculateNewPosition=function() {
+  var p,pi; p=physics; pi=p.initialConditions; 
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    var bodyStart = iBody * 4; // Starting index for current body in the u array
+      
+    p.state.positions[iBody].x = p.state.u[bodyStart + 0];
+    p.state.positions[iBody].y = p.state.u[bodyStart + 1];
+  }
+}
+  
+// Returns the largest distance of an object from the center based on initial considitions
+physics.largestDistanceMeters=function() {
+  var p,pi; p=physics; pi=p.initialConditions; 
+  var result = 0;
+    
+  // Loop through the bodies
+  for (var iBody = 0; iBody < pi.bodies; iBody++) {
+    var position = pi.positions[iBody];
+    if (result < position.r) {
+      result = position.r;
+    }
+  }
+    
+  return result;
+}
+  
+physics.changeInitialConditions=function(conditions) {
+  var p,pi; p=physics; pi=p.initialConditions; 
+
+  pi.dimensionless = conditions.dimensionless;
+  pi.masses = conditions.masses.slice();
+  pi.positions = conditions.positions;
+  pi.velocities = conditions.velocities;
+  pi.timeScaleFactor = conditions.timeScaleFactor;
+  pi.massSlider = conditions.massSlider;
+  pi.timeScaleFactorSlider = conditions.timeScaleFactorSlider;
+  pi.densities = conditions.densities;
+  pi.paleOrbitalPaths = conditions.paleOrbitalPaths;
+}
+
+physics.init=function(v) {
+  var p,r; r=false; p=physics;  if (v) {
+    p.changeInitialConditions(v);
+    p.resetStateToInitialConditions();
+    r={
+      'updatePosition': p.updatePosition,
+      'calculateNewPosition': p.calculateNewPosition,
+      'initialConditions': p.initialConditions,
+      'state': p.state,
+      'calculateDiameters': p.calculateDiameters,
+      'largestDistanceMeters': p.largestDistanceMeters,
+      'changeInitialConditions': p.changeInitialConditions,
+      'constants': p.constants
+      };
+  }
+  return r;
+};
+
+var graphics={
+  'canvas': null, // Canvas DOM element.
+  'context':null, // Canvas context for drawing.
+  'canvasHeight':2000,
+  // The scaling factor used to draw distances between the objects and their sizes
+  // Updated automatically on first draw
+  'metersPerPixel':100,
+  'minimumSizePixels':10, // Minimum size of an object in pixels.
+  'maximumSizePixels':80, // Maximum size of an object in pixels.
+  'colors':{
+    'orbitalPaths': ["#ff8b22","#6c81ff","#4ccd7a"],
+    'paleOrbitalPaths': ["#ab681c","#4957ae","#359256"]
+  },
+  // Positions of three bodies in pixels on screen
+  'bodyPositions':[
+  {x: null, y: null},
+  {x: null, y: null},
+  {x: null, y: null}
+		   ],
+  // Previously drawn positions of the two bodies.Used to draw orbital line.
+  'previousBodyPositions':[
+  {x: null, y: null},
+  {x: null, y: null},
+  {x: null, y: null}
+			   ],
+  // Contains the DOM elements of the bodies
+  'bodyElemenets':[],
+  // Body sizes in pixels
+  'currentBodySizes':[
+		      10, 10, 10
+		      ],
+  'middleX':0,
+  'middleY':0
+};
+
+// unused since svg animate path
+graphics.drawBody = function(position, size, bodyElement) {
+  var left = (position.x - size/2) + 1000;
+  var top = (position.y - size/2) + 1000;
+  // Using style.transform instead of style.left, since style.left was
+  // noticeably slower on mobile Chrome
+  //    bodyElement.style.transform = "translate(" + left + "px," + top + "px)";
+  dct.seta(bodyElement,'transform',
+	   "translate("+(position.x-(size/2))+","+(position.y-(size/2))+") scale("+size+")");
+};
+  
+// Updates the sizes of the objects
+//    sizes: the sizes of objects in meters
+graphics.updateObjectSizes = function(sizes) {
+  var g=graphics;
+  // Loop through the bodies
+  for (var iBody = 0; iBody < sizes.length; iBody++) {
+    g.currentBodySizes[iBody] =  sizes[iBody] / g.metersPerPixel;
+      
+    if (g.currentBodySizes[iBody] < g.minimumSizePixels) {
+	g.currentBodySizes[iBody] = g.minimumSizePixels;
+      }
+      
+      if (g.currentBodySizes[iBody] > g.maximumSizePixels) {
+	g.currentBodySizes[iBody] = g.maximumSizePixels;
+      }
+      
+      //bodyElemenets[iBody].style.width = currentBodySizes[iBody] + "px";
+      
+  }
+};
+
+graphics.drawOrbitalLine = function(newPosition, previousPosition, color, id) {
+  var d,m,q,s,t,u,v; d=dct; m=main; 
+  s=m.pp[id]; t=d.bfa([newPosition.x,newPosition.y]);  
+  if (previousPosition.x === null) {
+    previousPosition.x = newPosition.x;
+    previousPosition.y = newPosition.y;
+    if (s) { d.seta(s,'d','M '+t+' L '+t); }
+  }  else {
+    previousPosition.x = newPosition.x;
+    previousPosition.y = newPosition.y;
+    if (s) { u=d.geta(s,'d'); d.seta(s,'d',u+' '+t); }
+  }
+  return t;
+};
+
+// Returns the x and y positions a body on screen in pixels.
+//    position: x and y position in meters from the center of the screen.
+graphics.calculatePosition = function(position) {
+  var g=graphics;
+  var centerX = position.x / g.metersPerPixel + g.middleX;
+  var centerY = -position.y / g.metersPerPixel + g.middleY;
+    
+  return {
+  x: centerX,
+      y: centerY
+      };
+};
+  
+// Calculates the new positions of the bodies on screen
+// from the given state variables
+graphics.calculateNewPositions = function(state) {
+  var c,g,u; g=graphics; u=state.u; c=state.c;
+  // Loop through the bodies
+  for (var iBody = 0; iBody < Math.round(u.length/4); iBody++) {
+    var bodyStart = Math.round(iBody*4); // Starting index for current body in the u array
+    
+    var x = u[bodyStart + 0];
+    var y = u[bodyStart + 1];
+    
+    //middleX = Math.floor(canvas.width / 2);
+    //middleY = Math.floor(canvas.height / 2);
+    g.bodyPositions[iBody].x = (x / g.metersPerPixel) + g.middleX;
+    g.bodyPositions[iBody].y = (-y / g.metersPerPixel) + g.middleY;
+  }
+};
+  
+graphics.drawBodies = function() {
+  var g=graphics;  // Loop through the bodies
+  for (var iBody = 0; iBody < g.bodyPositions.length; iBody++) {
+    var bodyPosition = g.bodyPositions[iBody];
+    drawBody(bodyPosition, g.currentBodySizes[iBody], g.bodyElemenets[iBody], iBody);
+  }
+};
+  
+graphics.drawOrbitalLines = function() {
+  var c,g,m,p,q,t,u,v,x; m=main; g=graphics; p=physics; 
+
+  u=false; q=m.pp[3]; if (q) { // center of mass 
+    c=p.state.c[0]; if ((c.x+c.y)>dct.Mn) { // doesnt move much
+      x=dct.bfa([c.x,c.y]); t=dct.geta(q,'d'); 
+      if (!t || t.length<10) { dct.seta(q,'d','M '+x+' L '+x); }
+      else { dct.seta(q,'d',t+' '+x); }
+    }
+  }
+  // Loop through the bodies
+  x=false; for (var iBody=0; iBody < g.bodyPositions.length; iBody++) {
+    var bodyPosition = g.bodyPositions[iBody];
+    var orbitalPathColors = g.colors.orbitalPaths;
+    t=g.drawOrbitalLine(bodyPosition, g.previousBodyPositions[iBody], 
+			orbitalPathColors[iBody], iBody); if (t) {
+      if (!x) { x=t; }
+      u=(!u ? "M "+t+" L " : (u+t+" "));     
+    }
+  }
+  // triangles
+  if (u) { 
+    u=u+' '+x; v=m.vi; v=(v+1)%27; m.vi=v; q=m.xp[v]; if (q) { 
+      t=dct.geta(q,'d'); if (!t || t.length<10) { dct.seta(q,'d',u); }
+      else { dct.seta(q,'d',t+' '+u); }
+    }
+  }  
+};
+// just reload
+graphics.clearScene = function(largestDistanceMeters) {
+  var g=graphics;  // Loop through the bodies
+  //context.clearRect(0, 0, canvas.width, canvas.height);
+  g.previousBodyPositions = [
+  {x: null, y: null},
+  {x: null, y: null},
+  {x: null, y: null}
+			     ];
+};
+
+
+// Start the simulation
+  // The number of calculations done in one 16 millisecond frame.
+  // The higher the number, the more precise are the calculations and the slower the simulation.
+
+var main = { 
+  "ic": 500, "vi":0, "iX": 0.05, 
+  "pa":["User","Chaotic","FigureEight","SunEarthJupiter","LagrangePoint5","Kepler16"],
+  'ds': "1,1,0,0.55,1.57,1,1,2.09,0.55,3.67,1,1,4.19,0.55,5.76,1,3",
+  "pp" : false, "xp" : false
+};
+main.run = function(m) {
+  var d,g,p,pi; d=dct; g=graphics; p=physics; pi=p.initialConditions;
+  var a,i,j,k,s,t; d.ma=0; d.pa=false; m.qry=false; 
+  i=m.loc; if (i) { s=i.search; if (s && s.length>1) { m.qry=s.substr(1); }}
+  j=false; s=m.qry; j=eval("["+(s ? s : m.ds)+"]"); if (j) { 
+    i=j.length; if (i) { switch(i) {
+      case 1: 
+	if (!isNaN(j[0])) { d.ma=j[0]; }
+	break;
+      case 15: 
+      case 16:
+      case 17: d.pa=j; break;
+      default: break;
+      }}
+    
+    t=false; i=d.ma; if (!i) {
+      a=d.pa; if (a && a.length>14) { 
+	j=(a.length>15 && !a[15] ? false : true); 
+	k=(a.length>16 && !isNaN(a[16]) ? a[16] : 3); 
+	//mass,r,th,vr,vth, x3 // in Polar coordinates, r is in meters /s
+	t={
+	  'dimensionless': j,
+	  'masses': [a[0], a[5], a[10]],
+	  'timeScaleFactor': k,
+	  'positions': [ 	{ 'r': a[1], 'theta': a[2] },
+	  { 'r': a[6], 'theta': a[7] },
+	  { 'r': a[11], 'theta': a[12] }],
+	  'velocities': [ { 'r': a[3], 'theta': a[4] },
+	  { 'r': a[8], 'theta': a[9] },
+	  { 'r': a[13], 'theta': a[14] }]
+	};
+      }
+    } else { s=m.pa[i]; if (s) { t=allPresets[s]; }}
+    
+    if (t) {
+      p.init(t);
+      for (j=0;j<4;j++) { a=m.pp[j]; if (a) { 
+	  d.seta(a,'class',(i<3 ? 'lit' : 'big')+' p'+j);
+	}}
+      for (j=0;j<27;j++) { a=m.xp[j]; if (a) { 
+	  d.seta(a,'class',(i<3 ? 'med' : 'big')+' xx x'+j);
+	}}
+      g.clearScene(p.largestDistanceMeters());  
+      k=(pi.timeScaleFactor / (m.ic * m.iX)); for (i=0; i<m.ic; i++) {
+	p.updatePosition(k); 
+	g.calculateNewPositions(p.state); 
+	g.drawOrbitalLines();
+      }
+    }
+  }
+};
+main.init = function(m,g,w) { if (g) { if (w) { if (!m.win) {
+	var a,d,i; m.win=w; m.t=g; m.b=g.parentNode; d=m.b.parentNode; m.doc=d; 
+	m.loc=w.location; 
+	a=[]; for (i=0;i<4;i++) { a[i]=d.getElementById('p'+i); }
+	if (a.length) { m.pp=a; }
+	a=[]; for (i=0;i<27;i++) { a[i]=d.getElementById('q'+i); }
+	if (a.length) { m.xp=a; }
+	m.run(m); 
+      }}}};
+
+main.initg = function(e) { if (e) { var t=e.target; if (t) {
+      main.init(main,t,window);
+    }}};
+main.inits = function(e) { if (e) { var t=e.target; if (t) {
+      main.init(main,t.lastChild,window);
+    }}};
+
+]]></script>
+<defs>
+  <filter id="x0" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.2 0 0 0 0  0 0.2 0 0 0  0 0 0.2 0 0  0 0 0 1 0"/></filter>
+
+  <filter id="x1" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x2" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x3" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0.5 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x4" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x5" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.5 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x6" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x7" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x8" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter>
+  <filter id="x9" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x10" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x11" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x12" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x13" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x14" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.5 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x15" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x16" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 1 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x17" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 0.5 0 0  0 0 0 1 0"/></filter>
+  <filter id="x18" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x19" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x20" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x21" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 0.5 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x22" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 0.5 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x23" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.5 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x24" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+  <filter id="x25" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.5 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+
+  <filter id="x26" x="0" y="0" width="1" height="1"><feColorMatrix type="matrix" values="0.9 0 0 0 0  0 0.9 0 0 0  0 0 0.9 0 0  0 0 0 1 0"/></filter>
+
+
+  <g id='p' transform="scale(3333)">
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="1"
+		      begin="a1.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333"
+		      begin="a2.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="3333"
+		      begin="a3.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="33333" 
+		      begin="a4.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333333" 
+		      begin="a5.click" dur="1s" fill="freeze"/>
+
+    <path id='p0' class='p0 lit' d="M 0,0" />
+    <path id='p1' class='p1 lit' d="M 0,0" />
+    <path id='p2' class='p2 lit' d="M 0,0" />
+    <path id='p3' class='p3 lit' d="M 0,0" />
+
+  </g>
+
+  <g id='o' transform="scale(3333)">
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="1"
+		      begin="a1.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333"
+		      begin="a2.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="3333"
+		      begin="a3.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="33333" 
+		      begin="a4.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333333" 
+		      begin="a5.click" dur="1s" fill="freeze"/>
+
+    <circle id='c0' class='c0' cx='0' cy='0' r='.001'>
+      <animateMotion begin="a0.click" dur="1000s" fill="freeze"> 
+	<mpath xlink:href="#p0"/>
+      </animateMotion>
+    </circle>
+    <circle id='c1' class='c1' cx='0' cy='0' r='.001'>
+      <animateMotion begin="a0.click" dur="1000s" fill="freeze"> 
+	<mpath xlink:href="#p1"/>
+      </animateMotion>
+    </circle>
+    <circle id='c2' class='c2' cx='0' cy='0' r='.001'>
+      <animateMotion begin="a0.click" dur="1000s" fill="freeze"> 
+	<mpath xlink:href="#p2"/>
+      </animateMotion>
+    </circle>
+    <circle id='c3' class='c3' cx='0' cy='0' r='.0005'>
+<!--
+   center of mass doesnt move. duh 
+      <animateMotion begin="a0.click" dur="1000s" fill="freeze"> 
+	<mpath xlink:href="#p3"/>
+      </animateMotion>
+-->
+    </circle>
+  </g>
+
+  <g id='q' transform="scale(3333)">  
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="1" 
+		      begin="a1.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333" 
+		      begin="a2.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="3333" 
+		      begin="a3.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="33333" 
+		      begin="a4.click" dur="1s" fill="freeze"/>
+    <animateTransform attributeName="transform" attributeType="XML"
+		      type="scale" to="333333" 
+		      begin="a5.click" dur="1s" fill="freeze"/>
+
+    <path id='q0' class='lit xx x0' d='M 0,0'/>
+    <path id='q1' class='lit xx x1' d='M 0,0'/>
+    <path id='q2' class='lit xx x2' d='M 0,0'/>
+    <path id='q3' class='lit xx x3' d='M 0,0'/>
+    <path id='q4' class='lit xx x4' d='M 0,0'/>
+    <path id='q5' class='lit xx x5' d='M 0,0'/>
+    <path id='q6' class='lit xx x6' d='M 0,0'/>
+    <path id='q7' class='lit xx x7' d='M 0,0'/>
+    <path id='q8' class='lit xx x8' d='M 0,0'/>
+    <path id='q9' class='lit xx x9' d='M 0,0'/>
+    <path id='q10' class='lit xx x10' d='M 0,0'/>
+    <path id='q11' class='lit xx x11' d='M 0,0'/>
+    <path id='q12' class='lit xx x12' d='M 0,0'/>
+    <path id='q13' class='lit xx x13' d='M 0,0'/>
+    <path id='q14' class='lit xx x14' d='M 0,0'/>
+    <path id='q15' class='lit xx x15' d='M 0,0'/>
+    <path id='q16' class='lit xx x16' d='M 0,0'/>
+    <path id='q17' class='lit xx x17' d='M 0,0'/>
+    <path id='q18' class='lit xx x18' d='M 0,0'/>
+    <path id='q19' class='lit xx x19' d='M 0,0'/>
+    <path id='q20' class='lit xx x20' d='M 0,0'/>
+    <path id='q21' class='lit xx x21' d='M 0,0'/>
+    <path id='q22' class='lit xx x22' d='M 0,0'/>
+    <path id='q23' class='lit xx x23' d='M 0,0'/>
+    <path id='q24' class='lit xx x24' d='M 0,0'/>
+    <path id='q25' class='lit xx x25' d='M 0,0'/>
+    <path id='q26' class='lit xx x26' d='M 0,0'/>
+  </g>
+
+<clipPath id='spac'>
+  <path id='space' d='M -1000,-1000 L 1000,-1000 1000,1000 -1000,1000 -1000,-1000z'/>
+</clipPath>
+</defs>
+
+<g onload="main.initg(event);">
+  <use x='0' y='0' xlink:href='#space' class='space'/>
+
+  <g class='on'>
+    <set attributeName="class" attributeType="XML"
+	 to="on" begin="a12.click" />
+    <set attributeName="class" attributeType="XML"
+	 to="off" begin="a13.click" />
+    <use xlink:href='#q' clip-path='url(#spac)'/>
+  </g>
+  <g class='on'>
+    <set attributeName="class" attributeType="XML"
+	 to="on" begin="a0.click" />
+    <set attributeName="class" attributeType="XML"
+	 to="off" begin="a9.click" />
+    <use xlink:href='#o' clip-path='url(#spac)'/>
+  </g>
+  <g class='on'>
+    <set attributeName="class" attributeType="XML"
+	 to="on" begin="a10.click" />
+    <set attributeName="class" attributeType="XML"
+	 to="off" begin="a11.click" />
+    <use xlink:href='#p' clip-path='url(#spac)'/>
+  </g>
+
+  <g><title>zoom</title>
+    <a id='a1'><circle class='bc' cx='-970' cy='750' r='25'/></a>
+    <a id='a2'><circle class='bc' cx='-970' cy='800' r='23'/></a>
+    <a id='a3'><circle class='bc' cx='-970' cy='850' r='21'/></a>
+    <a id='a4'><circle class='bc' cx='-970' cy='900' r='19'/></a>
+    <a id='a5'><circle class='bc' cx='-970' cy='950' r='17'/></a>
+  </g>
+  <g><title>
+      one ?query to rule them all:
+      1-5 choose presets (1=chaotic, 2=fig eight, 3..5 dont work, boring anyway.
+      or
+      mass,position-radius,position-angle,velocity-speed,velocity-angle,
+      three times for three bodies. plus dimensionless(?) 0 or 1.
+      plus timescale 3 default. plus ?. use links and bookmarks to save.
+      (coming soon: an html form to choose parameters and an iframe to run :-)
+    </title>
+    <a xlink:href='?1'><circle class='bd' cx='-970' cy='-950' r='27'/></a>
+    <a xlink:href='?2'><circle class='bd' cx='-970' cy='-900' r='27'/></a>
+<!-- chaotic -->
+    <a xlink:href='?1,1,0,0.55,1.57,1,1,2.09,0.55,3.67,1,1,4.19,0.55,5.76,1,3'>
+      <circle class='bd' cx='-970' cy='-850' r='27'/>
+    </a>
+    <a xlink:href='?1,1,0,0.55,1.57,2,1,2.09,0.55,3.67,3,1,4.19,0.55,5.76,1,3'>
+      <circle class='bd' cx='-970' cy='-800' r='27'/>
+    </a>
+<!--
+fig 8, 1,    1,    1,
+   {        "r": 1.0000000028302551,        "theta": -0.2455475935237312    },
+   {        "r": 1.0000000028302551,        "theta": 2.896045060066062    },
+   {        "r": 0,        "theta": 0    }
+
+   {        "r": 0.6358348845305769,        "theta": 0.7477583629546527    },
+   {        "r": 0.6358348845305769,        "theta": 0.7477583629546527    },
+   {        "r": 1.2716697690611538,        "theta": -2.3938342906351404    }
+m,pr,pt,vr,vt, x3
+plus ,dimensionless,timex
+-->
+   <a xlink:href='?1,1,-0.245,0.636,0.747,1,1,2.89,0.636,0.747,1,0,0,1.272,-2.393,1,1'>
+      <circle class='bd' cx='-970' cy='-750' r='27'/>
+    </a>
+  </g>
+
+  <g>
+    <a id='a0'><title>animate orbs</title>
+      <circle class='be' cx='970' cy='-950' r='27'/>
+    </a>
+    <a id='a9'><title>orbs off</title>
+      <circle class='bf' cx='970' cy='-900' r='27'/>
+    </a>
+    <a id='a10'><title>path on</title>
+      <circle class='bg' cx='970' cy='-850' r='27'/>
+    </a>
+    <a id='a11'><title>path off</title>
+      <circle class='bf' cx='970' cy='-800' r='27'/>
+    </a>
+    <a id='a12'><title>radial on</title>
+      <circle class='bg' cx='970' cy='-750' r='27'/>
+    </a>
+    <a id='a13'><title>radial off</title>
+      <circle class='bf' cx='970' cy='-700' r='27'/>
+    </a>
+  </g>
+</g>
+
+</svg>
